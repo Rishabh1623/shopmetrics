@@ -1,0 +1,45 @@
+{
+  "dashboard": {
+    "title": "Kubernetes Cluster Overview",
+    "tags": ["kubernetes", "cluster"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "title": "Cluster CPU Usage",
+        "targets": [
+          {
+            "expr": "sum(rate(container_cpu_usage_seconds_total[5m])) by (node)"
+          }
+        ],
+        "type": "graph"
+      },
+      {
+        "title": "Cluster Memory Usage",
+        "targets": [
+          {
+            "expr": "sum(container_memory_usage_bytes) by (node)"
+          }
+        ],
+        "type": "graph"
+      },
+      {
+        "title": "Pod Count by Namespace",
+        "targets": [
+          {
+            "expr": "count(kube_pod_info) by (namespace)"
+          }
+        ],
+        "type": "graph"
+      },
+      {
+        "title": "Pod Restarts",
+        "targets": [
+          {
+            "expr": "sum(rate(kube_pod_container_status_restarts_total[5m])) by (namespace, pod)"
+          }
+        ],
+        "type": "graph"
+      }
+    ]
+  }
+}

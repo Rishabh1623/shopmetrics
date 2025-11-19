@@ -1,0 +1,99 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-config
+  namespace: monitoring
+data:
+  alertmanager.yml: |
+    global:
+      resolve_timeout: 5m
+      slack_api_url: 'SLACK_WEBHOOK_URL'  # Replace with actual webhook
+
+    route:
+      group_by: ['alertname', 'cluster', 'service']
+      group_wait: 10s
+      group_interval: 10s
+      repeat_interval: 12h
+      receiver: 'default'
+      routes:
+        - match:
+            severity: critical
+          receiver: 'critical-alerts'
+          continue: true
+        - match:
+            severity: warning
+          receiver: 'warning-alerts'
+        - match:
+            component: application
+          receiver: 'application-team'
+        - match:
+            component: infrastructure
+          receiver: 'infrastructure-team'
+
+    receivers:
+      - name: 'default'
+        slack_configs:
+          - channel: '#alerts'
+            title: 'ShopMetrics Alert'
+            text: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
+            send_resolved: true
+
+      - name: 'critical-alerts'
+        slack_configs:
+          - channel: '#critical-alerts'
+            title: '🚨 CRITICAL: {{ .GroupLabels.alertname }}'
+            text: |
+              *Alert:* {{ .GroupLabels.alertname }}
+              *Severity:* {{ .CommonLabels.severity }}
+              *Service:* {{ .CommonLabels.service }}
+              *Description:* {{ range .Alerts }}{{ .Annotations.description }}{{ end }}
+            send_resolved: true
+        pagerduty_configs:
+          - service_key: 'PAGERDUTY_SERVICE_KEY'  # Replace with actual key
+            description: '{{ .GroupLabels.alertname }}: {{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
+
+      - name: 'warning-alerts'
+        slack_configs:
+          - channel: '#warnings'
+            title: '⚠️ Warning: {{ .GroupLabels.alertname }}'
+            text: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
+            send_resolved: true
+
+      - name: 'application-team'
+        slack_configs:
+          - channel: '#app-alerts'
+            title: 'Application Alert: {{ .GroupLabels.alertname }}'
+            text: |
+              *Service:* {{ .CommonLabels.service }}
+              *Description:* {{ range .Alerts }}{{ .Annotations.description }}{{ end }}
+            send_resolved: true
+        email_configs:
+          - to: 'app-team@shopmetrics.com'
+            from: 'alerts@shopmetrics.com'
+            smarthost: 'smtp.gmail.com:587'
+            auth_username: 'alerts@shopmetrics.com'
+            auth_password: 'EMAIL_PASSWORD'  # Use secret in production
+            headers:
+              Subject: 'ShopMetrics Application Alert: {{ .GroupLabels.alertname }}'
+
+      - name: 'infrastructure-team'
+        slack_configs:
+          - channel: '#infra-alerts'
+            title: 'Infrastructure Alert: {{ .GroupLabels.alertname }}'
+            text: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
+            send_resolved: true
+        email_configs:
+          - to: 'infra-team@shopmetrics.com'
+            from: 'alerts@shopmetrics.com'
+            smarthost: 'smtp.gmail.com:587'
+            auth_username: 'alerts@shopmetrics.com'
+            auth_password: 'EMAIL_PASSWORD'
+            headers:
+              Subject: 'ShopMetrics Infrastructure Alert: {{ .GroupLabels.alertname }}'
+
+    inhibit_rules:
+      - source_match:
+          severity: 'critical'
+        target_match:
+          severity: 'warning'
+        equal: ['alertname', 'cluster', 'service']

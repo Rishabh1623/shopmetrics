@@ -1,0 +1,68 @@
+{
+  "dashboard": {
+    "title": "ShopMetrics - Service Health",
+    "tags": ["shopmetrics", "services", "health"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "title": "Request Rate by Service",
+        "targets": [
+          {
+            "expr": "sum(rate(http_requests_total[5m])) by (service)"
+          }
+        ],
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+      },
+      {
+        "title": "Error Rate by Service",
+        "targets": [
+          {
+            "expr": "sum(rate(http_requests_total{status=~\"5..\"}[5m])) by (service) / sum(rate(http_requests_total[5m])) by (service) * 100"
+          }
+        ],
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+      },
+      {
+        "title": "Service Latency (p50, p95, p99)",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket[5m])) by (service, le))",
+            "legendFormat": "p50 - {{service}}"
+          },
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (service, le))",
+            "legendFormat": "p95 - {{service}}"
+          },
+          {
+            "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by (service, le))",
+            "legendFormat": "p99 - {{service}}"
+          }
+        ],
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 8}
+      },
+      {
+        "title": "Database Connection Pool Usage",
+        "targets": [
+          {
+            "expr": "database_connection_pool_active / database_connection_pool_max * 100"
+          }
+        ],
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16}
+      },
+      {
+        "title": "Cache Hit Rate",
+        "targets": [
+          {
+            "expr": "sum(rate(cache_hits_total[5m])) / (sum(rate(cache_hits_total[5m])) + sum(rate(cache_misses_total[5m]))) * 100"
+          }
+        ],
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16}
+      }
+    ]
+  }
+}

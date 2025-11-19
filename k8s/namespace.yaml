@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+  labels:
+    name: monitoring
+    app: observability
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: shopmetrics
+  labels:
+    name: shopmetrics
+    app: ecommerce

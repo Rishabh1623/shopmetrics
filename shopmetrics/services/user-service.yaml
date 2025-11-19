@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  namespace: shopmetrics
+  labels:
+    app: user-service
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+        tier: backend
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8083"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: user-service
+          image: shopmetrics/user-service:latest
+          ports:
+            - name: http
+              containerPort: 8083
+            - name: metrics
+              containerPort: 8083
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database-credentials
+                  key: user-db-url
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: auth-credentials
+                  key: jwt-secret
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 1000m
+              memory: 512Mi
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8083
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8083
+            initialDelaySeconds: 10
+            periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+  namespace: shopmetrics
+  labels:
+    app: user-service
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 8083
+      targetPort: 8083
+  selector:
+    app: user-service
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: user-service-hpa
+  namespace: shopmetrics
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: user-service
+  minReplicas: 2
+  maxReplicas: 6
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70

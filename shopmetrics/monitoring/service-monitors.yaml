@@ -1,0 +1,88 @@
+# Custom metrics exposed by ShopMetrics services
+# These are example metric definitions that each service should expose
+
+# Frontend Metrics:
+# - http_requests_total{method, path, status}
+# - http_request_duration_seconds{method, path}
+# - cart_created_total
+# - cart_abandoned_total
+# - page_views_total{page}
+# - user_sessions_active
+
+# Product Service Metrics:
+# - http_requests_total{method, path, status}
+# - http_request_duration_seconds{method, path}
+# - product_views_total{product_id}
+# - product_searches_total{query}
+# - cache_hits_total
+# - cache_misses_total
+# - database_connection_pool_active
+# - database_connection_pool_max
+# - database_query_duration_seconds{query_type}
+
+# Order Service Metrics:
+# - http_requests_total{method, path, status}
+# - http_request_duration_seconds{method, path}
+# - orders_created_total{status}
+# - orders_completed_total
+# - orders_cancelled_total
+# - order_value_total{currency}
+# - order_processing_duration_seconds
+# - database_connection_pool_active
+# - database_connection_pool_max
+
+# Payment Service Metrics:
+# - http_requests_total{method, path, status}
+# - http_request_duration_seconds{method, path}
+# - payment_transactions_total{status, provider}
+# - payment_amount_total{currency, provider}
+# - payment_processing_duration_seconds{provider}
+# - payment_failures_total{reason, provider}
+# - database_connection_pool_active
+# - database_connection_pool_max
+
+# User Service Metrics:
+# - http_requests_total{method, path, status}
+# - http_request_duration_seconds{method, path}
+# - user_registrations_total
+# - user_logins_total{status}
+# - user_sessions_active
+# - password_reset_requests_total
+# - database_connection_pool_active
+# - database_connection_pool_max
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: metrics-documentation
+  namespace: shopmetrics
+data:
+  README.md: |
+    # ShopMetrics Application Metrics
+    
+    ## Metric Types
+    
+    ### RED Metrics (Request Rate, Error Rate, Duration)
+    All services expose:
+    - `http_requests_total` - Counter of HTTP requests
+    - `http_request_duration_seconds` - Histogram of request durations
+    
+    ### Business Metrics
+    - Orders: `orders_created_total`, `orders_completed_total`, `order_value_total`
+    - Payments: `payment_transactions_total`, `payment_amount_total`
+    - Users: `user_registrations_total`, `user_logins_total`
+    - Products: `product_views_total`, `product_searches_total`
+    - Cart: `cart_created_total`, `cart_abandoned_total`
+    
+    ### Infrastructure Metrics
+    - Database: `database_connection_pool_active`, `database_query_duration_seconds`
+    - Cache: `cache_hits_total`, `cache_misses_total`
+    
+    ## Instrumentation
+    
+    Each service should use Prometheus client libraries:
+    - Go: github.com/prometheus/client_golang
+    - Python: prometheus_client
+    - Node.js: prom-client
+    - Java: io.prometheus:simpleclient

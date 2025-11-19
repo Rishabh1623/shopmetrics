@@ -1,0 +1,70 @@
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+terraform.tfvars
+*.tfvars
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+package-lock.json
+yarn.lock
+
+# Next.js
+.next/
+out/
+build/
+dist/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Secrets
+*.pem
+*.key
+secrets/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+vendor/
+
+# Kubernetes secrets (keep templates only)
+*-secret.yaml
+!*-secret.yaml.template

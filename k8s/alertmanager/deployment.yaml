@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alertmanager
+  namespace: monitoring
+  labels:
+    app: alertmanager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alertmanager
+  template:
+    metadata:
+      labels:
+        app: alertmanager
+    spec:
+      securityContext:
+        fsGroup: 65534
+        runAsNonRoot: true
+        runAsUser: 65534
+      containers:
+        - name: alertmanager
+          image: prom/alertmanager:v0.26.0
+          args:
+            - '--config.file=/etc/alertmanager/alertmanager.yml'
+            - '--storage.path=/alertmanager'
+            - '--web.external-url=http://alertmanager.shopmetrics.example.com'
+          ports:
+            - name: web
+              containerPort: 9093
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          volumeMounts:
+            - name: config
+              mountPath: /etc/alertmanager
+            - name: storage
+              mountPath: /alertmanager
+          livenessProbe:
+            httpGet:
+              path: /-/healthy
+              port: 9093
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /-/ready
+              port: 9093
+            initialDelaySeconds: 5
+            timeoutSeconds: 5
+      volumes:
+        - name: config
+          configMap:
+            name: alertmanager-config
+        - name: storage
+          persistentVolumeClaim:
+            claimName: alertmanager-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: alertmanager-pvc
+  namespace: monitoring
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: gp3
+  resources:
+    requests:
+      storage: 5Gi

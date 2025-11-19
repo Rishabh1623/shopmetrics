@@ -1,0 +1,79 @@
+{
+  "dashboard": {
+    "title": "ShopMetrics - Business Overview",
+    "tags": ["shopmetrics", "business", "ecommerce"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "title": "Orders per Minute",
+        "targets": [
+          {
+            "expr": "rate(orders_created_total[1m]) * 60"
+          }
+        ],
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+      },
+      {
+        "title": "Revenue (Last Hour)",
+        "targets": [
+          {
+            "expr": "sum(increase(order_value_total[1h]))"
+          }
+        ],
+        "type": "singlestat",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+      },
+      {
+        "title": "Payment Success Rate",
+        "targets": [
+          {
+            "expr": "sum(rate(payment_transactions_total{status=\"success\"}[5m])) / sum(rate(payment_transactions_total[5m])) * 100"
+          }
+        ],
+        "type": "gauge",
+        "gridPos": {"h": 8, "w": 6, "x": 0, "y": 8}
+      },
+      {
+        "title": "Cart Abandonment Rate",
+        "targets": [
+          {
+            "expr": "sum(rate(cart_abandoned_total[30m])) / sum(rate(cart_created_total[30m])) * 100"
+          }
+        ],
+        "type": "gauge",
+        "gridPos": {"h": 8, "w": 6, "x": 6, "y": 8}
+      },
+      {
+        "title": "Active User Sessions",
+        "targets": [
+          {
+            "expr": "user_sessions_active"
+          }
+        ],
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+      },
+      {
+        "title": "Top Products Viewed",
+        "targets": [
+          {
+            "expr": "topk(10, sum(rate(product_views_total[1h])) by (product_id))"
+          }
+        ],
+        "type": "table",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16}
+      },
+      {
+        "title": "Service Response Times (p95)",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (service, le))"
+          }
+        ],
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16}
+      }
+    ]
+  }
+}
