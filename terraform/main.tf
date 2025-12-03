@@ -150,7 +150,7 @@ module "eks" {
   # Managed node group
   eks_managed_node_groups = {
     main = {
-      name           = "${local.name_prefix}-nodes"
+      name           = "nodes"
       instance_types = ["t3.medium"]
       capacity_type  = "ON_DEMAND"
 
