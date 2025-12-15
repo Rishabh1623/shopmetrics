@@ -125,7 +125,7 @@ module "eks" {
   version = "~> 19.0"
 
   cluster_name    = local.cluster_name
-  cluster_version = "1.31"
+  cluster_version = "1.29"
 
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
@@ -284,7 +284,7 @@ resource "aws_db_instance" "main" {
   storage_encrypted     = true
 
   db_name  = replace(var.project_name, "-", "_")
-  username = "admin"
+  username = "dbadmin"
   password = random_password.db_password.result
 
   multi_az               = var.environment == "production"
