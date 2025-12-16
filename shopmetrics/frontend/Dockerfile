@@ -1,5 +1,4 @@
-# Simple Next.js Dockerfile
-FROM node:18-alpine
+FROM node:18-alpine AS builder
 
 WORKDIR /app
 
@@ -7,16 +6,27 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install
+RUN npm ci
 
-# Copy app files
+# Copy application code
 COPY . .
 
-# Build the app
+# Build the application
 RUN npm run build
+
+# Production stage
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Copy built files
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/public ./public
 
 # Expose port
 EXPOSE 3000
 
-# Start the app
+# Run the application
 CMD ["npm", "start"]

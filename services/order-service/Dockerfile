@@ -6,13 +6,11 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application
+# Copy application code
 COPY . .
 
-# Create non-root user
-RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
-USER appuser
-
+# Expose port
 EXPOSE 8082
 
+# Run the application
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8082"]
