@@ -2,15 +2,12 @@ FROM golang:1.21-alpine AS builder
 
 WORKDIR /app
 
-# Copy go mod files
-COPY go.* ./
-RUN go mod download
-
-# Copy source code
+# Copy all files
 COPY . .
 
-# Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -o product-service .
+# Download dependencies and build
+RUN go mod download && \
+    CGO_ENABLED=0 GOOS=linux go build -o product-service .
 
 # Final stage
 FROM alpine:latest
