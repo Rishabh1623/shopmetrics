@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
         - name: user-service
-          image: shopmetrics/user-service:latest
+          image: 543927035352.dkr.ecr.us-east-1.amazonaws.com/shopmetrics/user-service:latest
           ports:
             - name: http
               containerPort: 8083

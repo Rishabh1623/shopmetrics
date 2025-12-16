@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: shopmetrics/frontend:latest
+          image: 543927035352.dkr.ecr.us-east-1.amazonaws.com/shopmetrics/frontend:latest
           ports:
             - name: http
               containerPort: 3000
