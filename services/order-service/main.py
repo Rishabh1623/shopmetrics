@@ -6,7 +6,7 @@ from typing import List, Optional
 from datetime import datetime
 from decimal import Decimal
 import asyncpg
-import aioredis
+import redis.asyncio as aioredis
 import boto3
 import json
 import logging
