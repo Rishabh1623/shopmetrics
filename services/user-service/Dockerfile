@@ -15,4 +15,4 @@ COPY . .
 EXPOSE 8083
 
 # Run the application
-CMD ["node", "src/index.js"]
+CMD ["node", "src/server.js"]
